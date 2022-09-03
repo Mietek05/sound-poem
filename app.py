@@ -17,25 +17,6 @@ def synth(frequency, duration=1.5, sampling_rate=44100, square=False):
 	sound = pg.sndarray.make_sound(sound.copy())
 	return sound
 
-scaleList = {
-	"a major": ["A", "B", "C#", "D", "E", "F#", "G#"],
-	"a minor": ["A", "B", "C", "D", "E", "F", "G"],
-	"b major": ["B", "C#", "D#", "E", "F#", "G#", "A#"],
-	"b minor": ["B", "C#", "D", "E", "F#", "G", "A"],
-	"b# major": ["C#", "D#", "F", "F#", "G#", "A#", "C"],
-	"c major": ["C", "D", "E", "F", "G", "A", "B"],
-	"c major 7": ["C", "E", "G", "B"],
-	"c minor": ["C", "D", "D#", "F", "G", "G#", "A#"],
-        "c# minor": ["C#", "D#", "E", "F#", "G#", "A", "B"],
-	"d major 7": ["D", "F#", "A", "C#"],
-        "d minor": ["D", "E", "F", "G", "A", "C#", "C"],
-	"e major": ["E", "F#", "G#", "A", "B", "C#", "D#"],
-	"e minor": ["E", "F#", "G", "A", "B", "C", "D"],
-	"e minor 7": ["E", "G", "B", "D"],
-	"f# major": ["F#", "G", "B", "D"],
-	"g major 7": ["G", "B", "D", "F#"],
-	"chromatic": ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-	}
 keylist = ".,' abcdefghijklmnopqrstuvwxyz"#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 print("ADMITTED CHARACTERS: ", keylist)
@@ -58,13 +39,68 @@ except:
 	scaleRange = 1
 if scaleRange == "":
 	scaleRange = 1
-print("Enter scale/chord [e.g. C# Major, E Minor 7, C Major]: ", end="")
-scaleKey = input().lower()
-try:
-	scale = scaleList[scaleKey]
-except:
-	print("(Invalid or non-added scale, picking chromatic by default)")
-	scale = scaleList["chromatic"]
+print("Enter scale/mode [e.g. C Ionian, A Mixolydian, E Lydian]: ", end="")
+scaleName = input().upper().split(" ")
+chromaticScale = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+scale = ["C", "D", "E", "F", "G", "A", "B"]
+print(scaleName)
+if scaleName[0] in chromaticScale:
+	gradeIndex = chromaticScale.index(scaleName[0])
+	scale[0] = chromaticScale[gradeIndex]
+	if scaleName[1] == "LYDIAN":
+		scale[1] = chromaticScale[(gradeIndex+2)%12]
+		scale[2] = chromaticScale[(gradeIndex+4)%12]
+		scale[3] = chromaticScale[(gradeIndex+6)%12]
+		scale[4] = chromaticScale[(gradeIndex+7)%12]
+		scale[5] = chromaticScale[(gradeIndex+9)%12]
+		scale[6] = chromaticScale[(gradeIndex+11)%12]
+	elif scaleName[1] == "IONIAN":
+		scale[1] = chromaticScale[(gradeIndex+2)%12]
+		scale[2] = chromaticScale[(gradeIndex+4)%12]
+		scale[3] = chromaticScale[(gradeIndex+5)%12]
+		scale[4] = chromaticScale[(gradeIndex+7)%12]
+		scale[5] = chromaticScale[(gradeIndex+9)%12]
+		scale[6] = chromaticScale[(gradeIndex+11)%12]
+	elif scaleName[1] == "MIXOLYDIAN":
+		scale[1] = chromaticScale[(gradeIndex+2)%12]
+		scale[2] = chromaticScale[(gradeIndex+4)%12]
+		scale[3] = chromaticScale[(gradeIndex+5)%12]
+		scale[4] = chromaticScale[(gradeIndex+7)%12]
+		scale[5] = chromaticScale[(gradeIndex+9)%12]
+		scale[6] = chromaticScale[(gradeIndex+10)%12]
+	elif scaleName[1] == "DORIAN":
+		scale[1] = chromaticScale[(gradeIndex+2)%12]
+		scale[2] = chromaticScale[(gradeIndex+3)%12]
+		scale[3] = chromaticScale[(gradeIndex+5)%12]
+		scale[4] = chromaticScale[(gradeIndex+7)%12]
+		scale[5] = chromaticScale[(gradeIndex+9)%12]
+		scale[6] = chromaticScale[(gradeIndex+10)%12]
+	elif scaleName[1] == "AEOLIAN":
+		scale[1] = chromaticScale[(gradeIndex+2)%12]
+		scale[2] = chromaticScale[(gradeIndex+3)%12]
+		scale[3] = chromaticScale[(gradeIndex+5)%12]
+		scale[4] = chromaticScale[(gradeIndex+7)%12]
+		scale[5] = chromaticScale[(gradeIndex+8)%12]
+		scale[6] = chromaticScale[(gradeIndex+10)%12]
+	elif scaleName[1] == "PHRYGIAN":
+		scale[1] = chromaticScale[(gradeIndex+1)%12]
+		scale[2] = chromaticScale[(gradeIndex+3)%12]
+		scale[3] = chromaticScale[(gradeIndex+5)%12]
+		scale[4] = chromaticScale[(gradeIndex+7)%12]
+		scale[5] = chromaticScale[(gradeIndex+8)%12]
+		scale[6] = chromaticScale[(gradeIndex+10)%12]
+	elif scaleName[1] == "LOCRIAN":
+		scale[1] = chromaticScale[(gradeIndex+1)%12]
+		scale[2] = chromaticScale[(gradeIndex+3)%12]
+		scale[3] = chromaticScale[(gradeIndex+5)%12]
+		scale[4] = chromaticScale[(gradeIndex+6)%12]
+		scale[5] = chromaticScale[(gradeIndex+8)%12]
+		scale[6] = chromaticScale[(gradeIndex+10)%12]
+
+	print(scale)
+if len(scaleName[0]) != 1 and len(scaleName) != 2:
+	print("(Invalid scale, picking chromatic by default)")
+	scale = chromaticScale
 
 print("Enter ending grade [1-"+str(len(scale))+"]: ", end="")
 try:
