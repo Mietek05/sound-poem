@@ -17,7 +17,9 @@ def synth(frequency, duration=1.5, sampling_rate=44100, square=False):
 	sound = pg.sndarray.make_sound(sound.copy())
 	return sound
 
-keylist = ".,' abcdefghijklmnopqrstuvwxyz"#ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+keys_file = open("keylist.txt")
+keylist = keys_file.read()
+keys_file.close()
 
 print("ADMITTED CHARACTERS: ", keylist)
 print("Enter your text: ", end="")
@@ -31,7 +33,7 @@ except:
 	bpm = 60
 if bpm == "":
 	bpm = 60
-tempo = 60/bpm
+barTempo = (60/bpm)*1000
 print("Enter the scale range [1-3]: ", end="")
 try:
 	scaleRange = float(input())
@@ -129,6 +131,7 @@ else:
 
 print(text)
 
+
 notes_file = open("noteslist.txt")
 file_contents = notes_file.read()
 notes_file.close()
@@ -145,14 +148,58 @@ for i in range(len(keylist)):
 		grade = 1
 
 textNum = []
-for i in range(len(text)):
-	duration = int(tempo*500)
-	waiting = int(tempo*1000)
-	if text[i] == " " or text[i] == ",":
-		waiting *= 1
-	if text[i] == "'":
-		waiting = 100
-	textNum.append([notesNum[text[i]][0], duration, waiting])
+words = text.split(" ")
+timeSignature = 4
+for w in words:
+	wordLength = len(w)
+	modulus = timeSignature % wordLength
+	modulus2 = wordLength % timeSignature
+	if modulus == 0 or modulus2 == 0:
+		duration = int(barTempo*timeSignature/wordLength)
+		waiting = duration
+		for c in w:
+			textNum.append([notesNum[c][0], duration, waiting])
+	else:
+		blanca = int(barTempo*2)
+		negra = int(barTempo)
+		corchea = int(barTempo*0.5)
+		semicorchea = int(barTempo*0.25)
+		if wordLength == 3:
+			for c in range(2):
+				textNum.append([notesNum[w[c]][0], negra, negra])
+			textNum.append([notesNum[w[2]][0], blanca, blanca])
+		elif wordLength == 5:
+			for c in range(3):
+				textNum.append([notesNum[w[c]][0], negra, negra])
+			for c in range(2):
+				textNum.append([notesNum[w[c+3]][0], corchea, corchea])
+		elif wordLength == 6:
+			for c in range(4):
+				textNum.append([notesNum[w[c]][0], corchea, corchea])
+			for c in range(2):
+				textNum.append([notesNum[w[c+4]][0], negra, negra])
+		elif wordLength == 7:
+			for c in range(4):
+				textNum.append([notesNum[w[c]][0], corchea, corchea])
+			textNum.append([notesNum[w[4]][0], negra, negra])
+			for c in range(2):
+				textNum.append([notesNum[w[c+5]][0], corchea, corchea])
+		elif wordLength == 9:
+			for c in range(7):
+				textNum.append([notesNum[w[c]][0], corchea, corchea])
+			for c in range(2):
+				textNum.append([notesNum[w[c+7]][0], semicorchea, semicorchea])
+		elif wordLength == 10:
+			for c in range(3):
+				textNum.append([notesNum[w[c]][0], corchea, corchea])
+			for c in range(2):
+				textNum.append([notesNum[w[c+3]][0], semicorchea, semicorchea])
+			for c in range(3):
+				textNum.append([notesNum[w[c]][0], corchea, corchea])
+			for c in range(2):
+				textNum.append([notesNum[w[c+8]][0], semicorchea, semicorchea])
+
+
 
 melodyNotes = []
 
@@ -170,7 +217,8 @@ for i in range(len(textNum)):
 	melodyNotes.append([scale[abs(j)], mod, textNum[i][1], textNum[i][2]])
 
 letterNotes = {}
-freq = 16.3516
+#freq = 16.3516
+freq = 16
 for i in range(len(noteslist)):
     mod = int(i/12)
     key = noteslist[i]
@@ -189,8 +237,6 @@ def playNote(note, mod):
 def playMelody(melody, mod, signature):
 	pulse = 1
 	for i in range(len(melody)):
-		if pulse == 1:
-			melody[i][2] = int(tempo*1000)
 		playNote(melody[i], mod)
 		if pulse < signature:
 			pulse += 1
@@ -204,11 +250,11 @@ def playMelody(melody, mod, signature):
 		playNote(endingNote, mod)
 
 if loop == False:
-	playMelody(melodyNotes, pitch+2, 2)
+	playMelody(melodyNotes, pitch+2, timeSignature)
 
 loopCount = 0
 while loop == True:
-	playMelody(melodyNotes, pitch+2, 2)
+	playMelody(melodyNotes, pitch+2, timeSignature)
 	loopCount+=1
 	print(loopCount)
 
