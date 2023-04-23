@@ -7,4 +7,4 @@ the python libraries used are:
 - pygame
 - numpy
 
-if you already have this libraries installed you don't need the `venv` folder, although you need the `virtualenv` library.
+if you already have these libraries installed you don't need the `venv` folder, although you need the `virtualenv` library.
